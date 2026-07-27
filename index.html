@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sidak Ghotra</title>
+<link rel="icon" type="image/png" href="images/sg.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep: #060a15;
+    --bg-navy: #0a1226;
+    --bg-card: #101b32;
+    --bg-card-hover: #142140;
+    --border-subtle: rgba(110, 160, 230, 0.16);
+    --border-hover: #5eb3ff;
+    --text-primary: #eaf1fb;
+    --text-muted: #8ea3c4;
+    --text-dim: #5c7191;
+    --accent: #4d9fff;
+    --accent-cyan: #7fd4ff;
+    --accent-deep: #1c3f73;
+    --glow: 0 0 50px rgba(77, 159, 255, 0.25);
+    --nav-h: 96px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-deep);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(45, 100, 190, 0.18), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 50%, rgba(45, 100, 190, 0.10), transparent);
+    color: var(--text-primary);
+    font-family: 'Sora', sans-serif;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--accent); color: #06101f; }
+
+  section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 90px 32px;
+    scroll-margin-top: var(--nav-h);
+    position: relative;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: 44px;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .section-head.visible { opacity: 1; transform: translateY(0); }
+
+  .section-head h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .section-head .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-subtle), transparent);
+  }
+
+  /* ---------- TOP NAV ---------- */
+  .topnav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 44px;
+    background: rgba(6, 10, 21, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .nav-logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    text-decoration: none;
+    background: none; border: none; padding: 0; cursor: pointer;
+  }
+
+  .nav-links { display: flex; gap: 34px; }
+
+  .nav-links button {
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 4px;
+    transition: color 0.3s ease;
+    cursor: pointer;
+    background: none; border: none;
+  }
+  .nav-links button::after {
+    content: '';
+    position: absolute; left: 0; bottom: 0;
+    width: 0; height: 1px;
+    background: var(--accent-cyan);
+    transition: width 0.3s ease;
+  }
+  .nav-links button:hover { color: var(--text-primary); }
+  .nav-links button.active { color: var(--accent-cyan); }
+  .nav-links button.active::after { width: 100%; }
+
+  @media (max-width: 700px) {
+    .topnav { padding: 16px 20px; }
+    .nav-links { gap: 16px; }
+    .nav-links button { font-size: 0.66rem; }
+  }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    max-width: 1200px;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    align-items: center;
+    gap: 40px;
+    padding: 120px 32px 32px;
+  }
+
+  .hero-visual {
+    position: relative;
+    height: 480px;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    background: linear-gradient(180deg, rgba(20, 33, 64, 0.5), rgba(10, 18, 38, 0.6));
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeInUp 0.9s ease 0.15s forwards;
+  }
+
+  .hero-visual canvas { width: 100%; height: 100%; display: block; }
+
+  .hero-text {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+    min-width: 0;
+  }
+
+  .name-wrap {
+    position: relative;
+    line-height: 0.95;
+    opacity: 0;
+    width: 100%;
+    animation: fadeInUp 0.9s ease 0.35s forwards;
+  }
+
+  .bolt {
+    position: absolute;
+    top: 50%;
+    left: -6%;
+    transform: translateY(-52%);
+    width: 130%;
+    height: 220%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    filter: drop-shadow(0 0 22px rgba(125, 200, 255, 1));
+    animation: flicker 4s infinite;
+  }
+
+  .bolt-mid {
+    left: 50%;
+    width: 26%;
+    transform: translate(-50%, -52%);
+    animation: flicker 4s infinite;
+    animation-delay: -1.3s;
+  }
+
+  .bolt-right {
+    left: 84%;
+    width: 22%;
+    transform: translate(-50%, -52%);
+    animation: flicker 4s infinite;
+    animation-delay: -2.6s;
+  }
+
+  @keyframes flicker {
+    0%, 78% { opacity: 0; }
+    80% { opacity: 1; }
+    82% { opacity: 0; }
+    84% { opacity: 0.95; }
+    87% { opacity: 0; }
+    89% { opacity: 0.7; }
+    100% { opacity: 0; }
+  }
+
+  .name-wrap h1 {
+    position: relative;
+    z-index: 1;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.6rem, 7vw, 5.4rem);
+    letter-spacing: -0.02em;
+    background: linear-gradient(180deg, #ffffff 10%, #b9d6ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .subtitle {
+    margin-top: 22px;
+    max-width: 420px;
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeInUp 0.9s ease 0.55s forwards;
+  }
+
+  .subtitle strong { color: var(--text-primary); font-weight: 600; }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- CARD GRID (competitions + projects + community) ---------- */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  .card {
+    position: relative;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  .card.visible { opacity: 1; transform: translateY(0); }
+  .card:hover, .card:focus-within {
+    border-color: var(--border-hover);
+    background: var(--bg-card-hover);
+    box-shadow: var(--glow);
+    transform: translateY(-4px);
+  }
+
+  .box-image { position: relative; width: 100%; aspect-ratio: 16 / 9; background: linear-gradient(135deg, var(--accent-deep), #0d1a33); }
+  .box-image img { display: none; width: 100%; height: 100%; object-fit: cover; }
+  .box-image .placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; color: var(--text-dim);
+    font-family: 'Sora', sans-serif; font-weight: 500; font-size: 0.78rem; letter-spacing: 0.03em;
+  }
+  .box-image .placeholder span { opacity: 0.8; }
+  .box-image .placeholder svg { width: 28px; height: 28px; opacity: 0.6; }
+
+  .card-body { padding: 22px 24px 26px; }
+  .card-tag {
+    font-family: 'Sora', sans-serif; font-weight: 600; font-size: 0.75rem;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-cyan); opacity: 0.85;
+  }
+  .card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 600; margin-top: 6px; letter-spacing: -0.01em; }
+
+  .card-detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease; }
+  .card:hover .card-detail, .card:focus-within .card-detail { grid-template-rows: 1fr; }
+  .card-detail-inner { overflow: hidden; }
+  .card-detail p { padding-top: 14px; color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+  @media (max-width: 760px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .hero { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- SKILLS ORBIT ---------- */
+  .orbit-panel {
+    max-width: 720px; margin: 0 auto; padding: 56px;
+    border: 1px solid var(--border-subtle); border-radius: 24px;
+    background: linear-gradient(180deg, rgba(20, 33, 64, 0.4), rgba(10, 18, 38, 0.5));
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .orbit-panel.visible { opacity: 1; transform: translateY(0); }
+  .orbit-wrap { position: relative; width: 100%; max-width: 600px; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; }
+  .orbit-hub {
+    position: absolute; width: 24%; height: 24%; border-radius: 50%;
+    border: 1px solid var(--border-subtle);
+    background: radial-gradient(circle, rgba(77,159,255,0.14), rgba(10,18,38,0.4));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.04em;
+    color: var(--text-muted); text-align: center; z-index: 2;
+    box-shadow: 0 0 30px rgba(77,159,255,0.12);
+  }
+  .ring { position: absolute; width: 100%; height: 100%; animation: spin 30s linear infinite; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spin-rev { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+
+  .skill-pos, .skill-counter { position: absolute; top: 50%; left: 50%; width: 0; height: 0; }
+  .skill-rotator { position: absolute; top: 0; left: 0; animation: spin-rev 30s linear infinite; }
+
+  .skill-bubble {
+    position: absolute; top: 0; left: 0;
+    border-radius: 50%; border: 1px solid var(--border-subtle); background: var(--bg-card);
+    display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1px;
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    cursor: default; z-index: 3;
+  }
+  .skill-bubble .skill-icon { color: var(--accent-cyan); line-height: 0; }
+  .skill-bubble .skill-icon svg { width: 1.5em; height: 1.5em; display: block; margin: 0 auto 2px; }
+  .skill-bubble .name { font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
+  .skill-bubble .tag {
+    font-family: 'Sora', sans-serif; font-weight: 500; font-size: 0.52em;
+    text-transform: capitalize; color: var(--text-dim); opacity: 0; transition: opacity 0.25s ease;
+  }
+  .skill-bubble:hover { border-color: var(--border-hover); background: var(--bg-card-hover); box-shadow: var(--glow); transform: scale(1.3); }
+  .skill-bubble:hover .tag { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) { .ring, .skill-rotator { animation: none; } }
+  @media (max-width: 700px) { .orbit-panel { padding: 30px; } }
+
+  /* ---------- CONTACT ---------- */
+  #contact {
+    position: relative; overflow: hidden; min-height: 65vh;
+    display: flex; align-items: center;
+    max-width: none; width: 100%;
+    padding-left: 0; padding-right: 0;
+  }
+
+  .contact-inner-wrap {
+    position: relative; z-index: 1; width: 100%;
+    max-width: 1100px; margin: 0 auto; padding: 0 32px;
+  }
+
+  .moon-wrap {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 100vw;
+    aspect-ratio: 6.4 / 1;
+    z-index: 0;
+    pointer-events: none;
+    filter: drop-shadow(0 0 60px rgba(180, 210, 255, 0.32));
+  }
+
+  .moon {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .contact-row { display: flex; gap: 20px; flex-wrap: wrap; opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .contact-row.visible { opacity: 1; transform: translateY(0); }
+
+  .contact-link {
+    display: flex; align-items: center; gap: 12px; padding: 16px 22px;
+    border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--bg-card);
+    color: var(--text-primary); text-decoration: none;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 500;
+    transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .contact-link:hover { border-color: var(--border-hover); background: var(--bg-card-hover); box-shadow: var(--glow); transform: translateY(-3px); }
+  .contact-link svg { width: 20px; height: 20px; stroke: var(--accent-cyan); flex-shrink: 0; }
+
+  section:last-of-type { padding-bottom: 60px; }
+</style>
+</head>
+<body>
+
+<canvas id="meteorCanvas"></canvas>
+
+<nav class="topnav">
+  <button type="button" class="nav-logo" id="navLogo">Sidak Ghotra</button>
+  <div class="nav-links">
+    <button type="button" data-section="competitions">Competitions</button>
+    <button type="button" data-section="projects">Projects</button>
+    <button type="button" data-section="skills">Skills</button>
+    <button type="button" data-section="community">Community</button>
+    <button type="button" data-section="contact">Contact</button>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="name-wrap">
+      <svg class="bolt" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="120,0 40,160 90,160 70,300 160,120 105,120" fill="url(#boltGrad)"/>
+        <defs>
+          <linearGradient id="boltGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#bfe4ff"/>
+            <stop offset="100%" stop-color="#4d9fff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <svg class="bolt bolt-mid" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="120,0 40,160 90,160 70,300 160,120 105,120" fill="url(#boltGrad2)"/>
+        <defs>
+          <linearGradient id="boltGrad2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#bfe4ff"/>
+            <stop offset="100%" stop-color="#4d9fff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <svg class="bolt bolt-right" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="120,0 40,160 90,160 70,300 160,120 105,120" fill="url(#boltGrad3)"/>
+        <defs>
+          <linearGradient id="boltGrad3" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#bfe4ff"/>
+            <stop offset="100%" stop-color="#4d9fff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <h1>Sidak Ghotra</h1>
+    </div>
+    <p class="subtitle">High school student at <strong>North Park Secondary School</strong> with a passion for tech &amp; engineering.</p>
+  </div>
+
+  <div class="hero-visual">
+    <canvas id="net"></canvas>
+    <!-- Swap this whole block for a <img src="images/your-photo.jpg"> when you're ready -->
+  </div>
+</section>
+
+<!-- ============ COMPETITIONS ============ -->
+<section id="competitions">
+  <div class="section-head"><h2>Competitions</h2><div class="line"></div></div>
+  <div class="card-grid">
+
+    <div class="card" tabindex="0">
+      <div class="box-image">
+        <div class="placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>images/deca-icdc.jpg</span>
+        </div>
+        <img src="images/deca-icdc.jpg" alt="DECA ICDC" onload="this.style.display='block'; this.previousElementSibling.style.display='none';" onerror="this.style.display='none';">
+      </div>
+      <div class="card-body">
+        <div class="card-tag">DECA · ICDC</div>
+        <h3>7th in the World — PMK</h3>
+        <div class="card-detail"><div class="card-detail-inner">
+          <p>In grade 9, I made my way through regionals, then provincials, and finally onto the international stage — placing 7th in the world in Principles of Marketing at ICDC.</p>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <div class="box-image">
+        <div class="placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>images/wolfhacks.jpg</span>
+        </div>
+        <img src="images/wolfhacks.jpg" alt="WolfHacks" onload="this.style.display='block'; this.previousElementSibling.style.display='none';" onerror="this.style.display='none';">
+      </div>
+      <div class="card-body">
+        <div class="card-tag">WolfHacks · Hackathon</div>
+        <h3>Top 3 Overall</h3>
+        <div class="card-detail"><div class="card-detail-inner">
+          <p>We designed Synapse to counteract the medical crisis we were facing, and placed top 3 at our very first hackathon.</p>
+        </div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ PROJECTS ============ -->
+<section id="projects">
+  <div class="section-head"><h2>Projects</h2><div class="line"></div></div>
+  <div class="card-grid">
+
+    <div class="card" tabindex="0">
+      <div class="box-image">
+        <div class="placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>images/deca-app.jpg</span>
+        </div>
+        <img src="images/deca-app.jpg" alt="DECA Web App" onload="this.style.display='block'; this.previousElementSibling.style.display='none';" onerror="this.style.display='none';">
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Full-Stack Web App</div>
+        <h3>DECA Chapter Platform</h3>
+        <div class="card-detail"><div class="card-detail-inner">
+          <p>I built a full-stack web application for my DECA chapter that lets members study and practice in a whole new way, making competition prep more accessible for everyone.</p>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <div class="box-image">
+        <div class="placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>images/synapse.jpg</span>
+        </div>
+        <img src="images/synapse.jpg" alt="Synapse" onload="this.style.display='block'; this.previousElementSibling.style.display='none';" onerror="this.style.display='none';">
+      </div>
+      <div class="card-body">
+        <div class="card-tag">WolfHacks Submission</div>
+        <h3>Synapse</h3>
+        <div class="card-detail"><div class="card-detail-inner">
+          <p>We built a hospital load prediction and counteraction system aligned with Brampton's 2040 vision, designed to reduce the strain on healthcare.</p>
+        </div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ SKILLS ============ -->
+<section id="skills">
+  <div class="section-head"><h2>Skills</h2><div class="line"></div></div>
+  <div class="orbit-panel">
+    <div class="orbit-wrap" id="orbitWrap">
+      <div class="orbit-hub">CORE&nbsp;STACK</div>
+      <div class="ring" id="ring"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMMUNITY ============ -->
+<section id="community">
+  <div class="section-head"><h2>Community Involvement</h2><div class="line"></div></div>
+  <div class="card-grid">
+
+    <div class="card" tabindex="0">
+      <div class="box-image">
+        <div class="placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>images/community-cibc.jpg</span>
+        </div>
+        <img src="images/community-cibc.jpg" alt="CIBC Run for the Cure" onload="this.style.display='block'; this.previousElementSibling.style.display='none';" onerror="this.style.display='none';">
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Community · 7 Years</div>
+        <h3>CIBC Run for the Cure</h3>
+        <div class="card-detail"><div class="card-detail-inner">
+          <p>I've participated in the CIBC Run for the Cure for seven years, helping raise awareness and funds for breast cancer research.</p>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <div class="box-image">
+        <div class="placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>images/community-cycle.jpg</span>
+        </div>
+        <img src="images/community-cycle.jpg" alt="Great Cycle Challenge Canada" onload="this.style.display='block'; this.previousElementSibling.style.display='none';" onerror="this.style.display='none';">
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Community · 6 Years</div>
+        <h3>Great Cycle Challenge Canada</h3>
+        <div class="card-detail"><div class="card-detail-inner">
+          <p>Every summer for the past six years, I've ridden my bike to raise funds for SickKids, supporting kids battling cancer.</p>
+        </div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact">
+  <div class="moon-wrap">
+  <svg class="moon" viewBox="0 0 640 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="moonGrad" cx="34%" cy="8%" r="95%">
+        <stop offset="0%" stop-color="#fcfdff"/>
+        <stop offset="28%" stop-color="#e9eff9"/>
+        <stop offset="52%" stop-color="#cbd9ec"/>
+        <stop offset="76%" stop-color="#a3b6d2"/>
+        <stop offset="100%" stop-color="#7c90b0"/>
+      </radialGradient>
+      <filter id="mariaBlur" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="4"/>
+      </filter>
+      <clipPath id="domeClip"><path d="M -30 100 Q 320 -35 670 100 Z"/></clipPath>
+    </defs>
+
+    <path d="M -30 100 Q 320 -35 670 100 Z" fill="url(#moonGrad)"/>
+
+    <g clip-path="url(#domeClip)">
+      <!-- maria: soft dark "seas" -->
+      <g filter="url(#mariaBlur)" opacity="0.5">
+        <ellipse cx="150" cy="55" rx="70" ry="20" fill="#7688a8" transform="rotate(-4 150 55)"/>
+        <ellipse cx="330" cy="30" rx="55" ry="16" fill="#8093b3" transform="rotate(3 330 30)"/>
+        <ellipse cx="470" cy="60" rx="65" ry="19" fill="#7a8caa"/>
+        <ellipse cx="230" cy="75" rx="40" ry="14" fill="#8093b3"/>
+      </g>
+
+      <!-- craters: shadow + highlight pairs for a dimpled 3D look -->
+      <g>
+        <ellipse cx="70" cy="70" rx="14" ry="9" fill="#5e7192" opacity="0.42"/>
+        <ellipse cx="66.5" cy="67.5" rx="8" ry="5.2" fill="#f4f8ff" opacity="0.3"/>
+
+        <ellipse cx="140" cy="30" rx="10" ry="7" fill="#5e7192" opacity="0.38"/>
+        <ellipse cx="137.5" cy="28" rx="5.6" ry="4" fill="#f4f8ff" opacity="0.28"/>
+
+        <ellipse cx="200" cy="55" rx="16" ry="10" fill="#5e7192" opacity="0.42"/>
+        <ellipse cx="196" cy="51.5" rx="9" ry="5.6" fill="#f4f8ff" opacity="0.3"/>
+
+        <ellipse cx="260" cy="20" rx="9" ry="6.2" fill="#5e7192" opacity="0.36"/>
+        <ellipse cx="258" cy="18" rx="5" ry="3.4" fill="#f4f8ff" opacity="0.26"/>
+
+        <ellipse cx="300" cy="65" rx="18" ry="11" fill="#5e7192" opacity="0.44"/>
+        <ellipse cx="295" cy="61" rx="10" ry="6.2" fill="#f4f8ff" opacity="0.3"/>
+
+        <ellipse cx="365" cy="35" rx="11" ry="7.5" fill="#5e7192" opacity="0.38"/>
+        <ellipse cx="362" cy="32.5" rx="6" ry="4.2" fill="#f4f8ff" opacity="0.27"/>
+
+        <ellipse cx="410" cy="70" rx="15" ry="9.5" fill="#5e7192" opacity="0.42"/>
+        <ellipse cx="406" cy="66.5" rx="8.4" ry="5.4" fill="#f4f8ff" opacity="0.3"/>
+
+        <ellipse cx="450" cy="25" rx="9" ry="6.2" fill="#5e7192" opacity="0.36"/>
+        <ellipse cx="448" cy="23" rx="5" ry="3.4" fill="#f4f8ff" opacity="0.26"/>
+
+        <ellipse cx="500" cy="55" rx="13" ry="8.4" fill="#5e7192" opacity="0.4"/>
+        <ellipse cx="496.5" cy="52" rx="7.2" ry="4.7" fill="#f4f8ff" opacity="0.28"/>
+
+        <ellipse cx="540" cy="30" rx="8" ry="5.6" fill="#5e7192" opacity="0.34"/>
+        <ellipse cx="538.2" cy="28.3" rx="4.4" ry="3" fill="#f4f8ff" opacity="0.24"/>
+
+        <ellipse cx="570" cy="68" rx="12" ry="7.8" fill="#5e7192" opacity="0.38"/>
+        <ellipse cx="567" cy="65" rx="6.6" ry="4.3" fill="#f4f8ff" opacity="0.26"/>
+
+        <ellipse cx="110" cy="45" rx="7" ry="5" fill="#5e7192" opacity="0.32"/>
+        <ellipse cx="108.4" cy="43.3" rx="3.8" ry="2.7" fill="#f4f8ff" opacity="0.22"/>
+
+        <ellipse cx="240" cy="45" rx="6" ry="4.4" fill="#5e7192" opacity="0.3"/>
+        <ellipse cx="238.6" cy="43.5" rx="3.2" ry="2.3" fill="#f4f8ff" opacity="0.2"/>
+
+        <ellipse cx="340" cy="60" rx="7" ry="5" fill="#5e7192" opacity="0.32"/>
+        <ellipse cx="338.4" cy="58.3" rx="3.8" ry="2.7" fill="#f4f8ff" opacity="0.22"/>
+
+        <ellipse cx="430" cy="45" rx="6" ry="4.4" fill="#5e7192" opacity="0.3"/>
+        <ellipse cx="428.6" cy="43.5" rx="3.2" ry="2.3" fill="#f4f8ff" opacity="0.2"/>
+
+        <ellipse cx="185" cy="25" rx="5" ry="3.6" fill="#5e7192" opacity="0.28"/>
+        <ellipse cx="183.7" cy="23.7" rx="2.7" ry="2" fill="#f4f8ff" opacity="0.2"/>
+
+        <ellipse cx="600" cy="80" rx="9" ry="6" fill="#5e7192" opacity="0.34"/>
+        <ellipse cx="597.8" cy="77.8" rx="5" ry="3.3" fill="#f4f8ff" opacity="0.24"/>
+      </g>
+
+      <!-- soft lower shading for extra roundness -->
+      <ellipse cx="320" cy="115" rx="380" ry="70" fill="#0a1226" opacity="0.16"/>
+    </g>
+  </svg>
+  </div>
+  <div class="contact-inner-wrap">
+    <div class="section-head"><h2>Contact</h2><div class="line"></div></div>
+    <div class="contact-row">
+      <a class="contact-link" href="https://mail.google.com/mail/?view=cm&fs=1&to=ghotra.sidak1@gmail.com" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 6l10 7 10-7"/></svg>
+        ghotra.sidak1@gmail.com
+      </a>
+      <a class="contact-link" href="https://github.com/sidakghotra" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+        github.com/sidakghotra
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  // ---------- dynamic nav height ----------
+  const topnav = document.querySelector('.topnav');
+  function updateNavHeight() {
+    document.documentElement.style.setProperty('--nav-h', topnav.offsetHeight + 'px');
+  }
+  updateNavHeight();
+  window.addEventListener('resize', updateNavHeight);
+
+  // ---------- nav click-to-scroll ----------
+  const navLinks = document.querySelectorAll('.nav-links button');
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.getElementById(link.dataset.section);
+      if (!target) return;
+      const y = target.getBoundingClientRect().top + window.scrollY - topnav.offsetHeight - 8;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+      navLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+    });
+  });
+  document.getElementById('navLogo').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navLinks.forEach(l => l.classList.remove('active'));
+  });
+
+  // ---------- scrollspy (position-based) ----------
+  const spySections = Array.from(document.querySelectorAll('section[id]'));
+  function onScroll() {
+    const probe = window.scrollY + topnav.offsetHeight + 40;
+    let current = null;
+    for (const sec of spySections) {
+      if (sec.offsetTop <= probe) current = sec;
+    }
+    navLinks.forEach(l => {
+      l.classList.toggle('active', current && l.dataset.section === current.id);
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  // ---------- hero visual: glowing core with orbiting rings, tilts toward the cursor ----------
+  const heroVisual = document.querySelector('.hero-visual');
+  const canvas = document.getElementById('net');
+  const ctx = canvas.getContext('2d');
+  let w, h;
+  const mouse = { x: null, y: null };
+
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    w = canvas.width = rect.width;
+    h = canvas.height = rect.height;
+  }
+  heroVisual.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+  heroVisual.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
+
+  const rings = [
+    { rxF: 1.00, ry: 0.80, tilt: 0.22, dotSpeed: 0.32, phase: 0.0, width: 1.4, alpha: 0.55 },
+    { rxF: 0.68, ry: 0.40, tilt: -0.40, dotSpeed: 0.52, phase: 2.0, width: 1.2, alpha: 0.4 },
+    { rxF: 1.30, ry: 0.20, tilt: 0.52, dotSpeed: 0.2, phase: 4.1, width: 1, alpha: 0.32 }
+  ];
+
+  let curGlobalRot = 0, targetGlobalRot = 0;
+  let curGlobalRy = 0, targetGlobalRy = 0;
+
+  function step() {
+    ctx.clearRect(0, 0, w, h);
+    const now = performance.now() / 1000;
+
+    if (mouse.x !== null) {
+      targetGlobalRot = ((mouse.x / w) - 0.5) * 0.5;
+      targetGlobalRy = ((mouse.y / h) - 0.5) * 0.12;
+    } else {
+      targetGlobalRot *= 0.97;
+      targetGlobalRy *= 0.97;
+    }
+    curGlobalRot += (targetGlobalRot - curGlobalRot) * 0.05;
+    curGlobalRy += (targetGlobalRy - curGlobalRy) * 0.05;
+
+    const cx = w / 2, cy = h / 2;
+    const baseR = Math.min(w, h) * 0.3;
+
+    // glowing core
+    const coreR = baseR * 0.16;
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 2.4);
+    glow.addColorStop(0, 'rgba(210, 235, 255, 0.9)');
+    glow.addColorStop(0.4, 'rgba(120, 190, 255, 0.42)');
+    glow.addColorStop(1, 'rgba(80, 150, 255, 0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, coreR * 2.4, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(235, 248, 255, 0.95)';
+    ctx.shadowColor = 'rgba(150, 210, 255, 0.9)';
+    ctx.shadowBlur = 16;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    rings.forEach(r => {
+      const rx = baseR * r.rxF;
+      const ry = rx * Math.max(0.08, r.ry + curGlobalRy);
+      const rot = r.tilt + curGlobalRot;
+
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx, ry, rot, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(120, 190, 255, ${r.alpha})`;
+      ctx.lineWidth = r.width;
+      ctx.stroke();
+
+      const angle = now * r.dotSpeed + r.phase;
+      const lx = Math.cos(angle) * rx;
+      const ly = Math.sin(angle) * ry;
+      const px = cx + lx * Math.cos(rot) - ly * Math.sin(rot);
+      const py = cy + lx * Math.sin(rot) + ly * Math.cos(rot);
+
+      ctx.beginPath();
+      ctx.arc(px, py, 2.6, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(220, 240, 255, 0.95)';
+      ctx.shadowColor = 'rgba(160, 215, 255, 0.95)';
+      ctx.shadowBlur = 10;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+
+    requestAnimationFrame(step);
+  }
+  window.addEventListener('resize', resize);
+  resize(); step();
+
+  // ---------- skills orbit + connecting web ----------
+  const skills = [
+    { name: 'C++', tag: 'systems', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><text x="12" y="15" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="9" font-weight="700" fill="currentColor" stroke="none">C++</text></svg>' },
+    { name: 'Python', tag: 'scripting', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><text x="12" y="15" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="9" font-weight="700" fill="currentColor" stroke="none">PY</text></svg>' },
+    { name: 'HTML', tag: 'markup', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 4 3 12 8 20"/><polyline points="16 4 21 12 16 20"/></svg>' },
+    { name: 'CSS', tag: 'styling', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4c-2.2 0-3 1-3 3v2c0 1.3-1 2-2 2 1 0 2 .7 2 2v2c0 2 .8 3 3 3"/><path d="M15 4c2.2 0 3 1 3 3v2c0 1.3 1 2 2 2-1 0-2 .7-2 2v2c0 2-.8 3-3 3"/></svg>' },
+    { name: 'JS', tag: 'logic', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><text x="12" y="15" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="9" font-weight="700" fill="currentColor" stroke="none">JS</text></svg>' },
+    { name: 'React', tag: 'frontend', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>' },
+    { name: 'MongoDB', tag: 'database', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c3 4 5 8 5 12a5 5 0 0 1-10 0c0-4 2-8 5-12z"/><line x1="12" y1="14" x2="12" y2="22"/></svg>' },
+    { name: 'Node.js', tag: 'backend', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 2l8.66 5v10L12 22l-8.66-5V7z"/></svg>' }
+  ];
+
+  const ring = document.getElementById('ring');
+  const orbitWrap = document.getElementById('orbitWrap');
+  const svgNS = 'http://www.w3.org/2000/svg';
+  let ringAnim = null;
+  let rotatorAnims = [];
+
+  function setOrbitSpeed(rate) {
+    if (ringAnim) ringAnim.playbackRate = rate;
+    rotatorAnims.forEach(a => { if (a) a.playbackRate = rate; });
+  }
+
+  function buildOrbit() {
+    // restart the ring's own spin so it's back in phase with the
+    // freshly-created counter-rotating labels below (fixes resize desync)
+    ring.style.animation = 'none';
+    void ring.offsetWidth;
+    ring.style.animation = '';
+
+    ring.innerHTML = '';
+    const size = orbitWrap.getBoundingClientRect().width;
+    if (!size) return;
+    const center = size / 2;
+    const bubbleSize = size * 0.17;
+    const R = center - bubbleSize / 2 - size * 0.015;
+    const n = skills.length;
+
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('width', '100%'); svg.setAttribute('height', '100%');
+    svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+    svg.style.position = 'absolute'; svg.style.inset = '0'; svg.style.pointerEvents = 'none';
+
+    const defs = document.createElementNS(svgNS, 'defs');
+    const filter = document.createElementNS(svgNS, 'filter');
+    filter.setAttribute('id', 'webGlow');
+    filter.setAttribute('x', '-50%'); filter.setAttribute('y', '-50%');
+    filter.setAttribute('width', '200%'); filter.setAttribute('height', '200%');
+    const blur = document.createElementNS(svgNS, 'feGaussianBlur');
+    blur.setAttribute('stdDeviation', '1.1'); blur.setAttribute('result', 'blur');
+    const merge = document.createElementNS(svgNS, 'feMerge');
+    const m1 = document.createElementNS(svgNS, 'feMergeNode'); m1.setAttribute('in', 'blur');
+    const m2 = document.createElementNS(svgNS, 'feMergeNode'); m2.setAttribute('in', 'SourceGraphic');
+    merge.appendChild(m1); merge.appendChild(m2);
+    filter.appendChild(blur); filter.appendChild(merge);
+    defs.appendChild(filter);
+    svg.appendChild(defs);
+
+    const g = document.createElementNS(svgNS, 'g');
+    g.setAttribute('filter', 'url(#webGlow)');
+    svg.appendChild(g);
+    ring.appendChild(svg);
+
+    const coords = skills.map((s, i) => {
+      const angle = (360 / n) * i * Math.PI / 180;
+      return { x: center + R * Math.cos(angle), y: center + R * Math.sin(angle) };
+    });
+
+    function drawLine(a, b, opacity, width) {
+      const line = document.createElementNS(svgNS, 'line');
+      line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+      line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+      line.setAttribute('stroke', `rgba(94,180,255,${opacity})`);
+      line.setAttribute('stroke-width', width);
+      g.appendChild(line);
+    }
+
+    function drawCurve(a, b, opacity, width, bow) {
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      const cx = mx + (center - mx) * bow;
+      const cy = my + (center - my) * bow;
+      const path = document.createElementNS(svgNS, 'path');
+      path.setAttribute('d', `M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}`);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', `rgba(94,180,255,${opacity})`);
+      path.setAttribute('stroke-width', width);
+      path.setAttribute('stroke-linecap', 'round');
+      g.appendChild(path);
+    }
+
+    coords.forEach(c => drawLine({ x: center, y: center }, c, 0.34, 1.1));
+    for (let i = 0; i < n; i++) drawCurve(coords[i], coords[(i + 1) % n], 0.28, 1.1, 0.22 + (i % 3) * 0.03);
+    for (let i = 0; i < n; i++) drawCurve(coords[i], coords[(i + 2) % n], 0.15, 0.85, 0.14 + (i % 2) * 0.03);
+
+    skills.forEach((s, i) => {
+      const angleDeg = (360 / n) * i;
+      const pos = document.createElement('div');
+      pos.className = 'skill-pos';
+      pos.style.transform = `rotate(${angleDeg}deg) translateX(${R}px)`;
+
+      const counter = document.createElement('div');
+      counter.className = 'skill-counter';
+      counter.style.transform = `rotate(${-angleDeg}deg)`;
+
+      const rotator = document.createElement('div');
+      rotator.className = 'skill-rotator';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'skill-bubble';
+      bubble.style.width = bubbleSize + 'px';
+      bubble.style.height = bubbleSize + 'px';
+      bubble.style.marginLeft = (-bubbleSize / 2) + 'px';
+      bubble.style.marginTop = (-bubbleSize / 2) + 'px';
+      bubble.style.fontSize = (bubbleSize * 0.15) + 'px';
+      bubble.innerHTML = `<div class="skill-icon">${s.icon}</div><div class="name">${s.name}</div><div class="tag">${s.tag}</div>`;
+      bubble.addEventListener('mouseenter', () => setOrbitSpeed(0.12));
+      bubble.addEventListener('mouseleave', () => setOrbitSpeed(1));
+
+      rotator.appendChild(bubble);
+      counter.appendChild(rotator);
+      pos.appendChild(counter);
+      ring.appendChild(pos);
+    });
+
+    ringAnim = ring.getAnimations()[0] || null;
+    rotatorAnims = Array.from(ring.querySelectorAll('.skill-rotator')).map(el => el.getAnimations()[0]).filter(Boolean);
+  }
+
+  function debounce(fn, wait) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
+  }
+  buildOrbit();
+  window.addEventListener('resize', debounce(buildOrbit, 150));
+
+  // ---------- scroll reveal ----------
+  const revealTargets = document.querySelectorAll('.section-head, .card, .contact-row, .orbit-panel');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry, idx) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), idx * 60);
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealTargets.forEach(t => io.observe(t));
+
+  // ---------- global meteor / comet background ----------
+  const meteorCanvas = document.getElementById('meteorCanvas');
+  meteorCanvas.style.position = 'fixed';
+  meteorCanvas.style.inset = '0';
+  meteorCanvas.style.width = '100vw';
+  meteorCanvas.style.height = '100vh';
+  meteorCanvas.style.pointerEvents = 'none';
+  meteorCanvas.style.zIndex = '-1';
+  const mctx = meteorCanvas.getContext('2d');
+  let mw, mh;
+
+  function resizeMeteor() {
+    mw = meteorCanvas.width = window.innerWidth;
+    mh = meteorCanvas.height = window.innerHeight;
+    initStars();
+  }
+  window.addEventListener('resize', resizeMeteor);
+
+  let stars = [];
+  function initStars() {
+    const count = Math.floor((mw * mh) / 7000);
+    stars = Array.from({ length: count }, () => ({
+      x: Math.random() * mw,
+      y: Math.random() * mh,
+      r: Math.random() * 1.3 + 0.5,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.4 + Math.random() * 0.7
+    }));
+  }
+  resizeMeteor();
+
+  let meteors = [];
+  let nextSpawn = performance.now() + 400;
+
+  function spawnMeteor() {
+    const angle = (128 + (Math.random() * 26 - 13)) * Math.PI / 180;
+    const startX = mw * (0.5 + Math.random() * 0.6);
+    const startY = -mh * (0.02 + Math.random() * 0.14);
+    const dist = Math.sqrt(mw * mw + mh * mh);
+    const speed = dist / (1.2 + Math.random() * 0.5);
+    meteors.push({
+      x: startX, y: startY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      angle,
+      len: 240 + Math.random() * 160,
+      width: 3.4 + Math.random() * 2.2,
+      last: performance.now()
+    });
+  }
+
+  function stepMeteors(now) {
+    if (now >= nextSpawn) {
+      spawnMeteor();
+      nextSpawn = now + 550 + Math.random() * 950;
+    }
+    mctx.clearRect(0, 0, mw, mh);
+
+    for (const s of stars) {
+      const tw = 0.5 + 0.5 * Math.sin(now / 1000 * s.speed + s.phase);
+      mctx.beginPath();
+      mctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      mctx.fillStyle = `rgba(180, 210, 255, ${0.2 + 0.55 * tw})`;
+      mctx.fill();
+    }
+
+    meteors = meteors.filter(m => m.x > -400 && m.y < mh + 400);
+    for (const m of meteors) {
+      const dt = (now - m.last) / 1000;
+      m.last = now;
+      m.x += m.vx * dt;
+      m.y += m.vy * dt;
+
+      const tailX = m.x - Math.cos(m.angle) * m.len;
+      const tailY = m.y - Math.sin(m.angle) * m.len;
+
+      // outer flare: wide, soft, expanding blue glow (not fire-colored)
+      let grad = mctx.createLinearGradient(m.x, m.y, tailX, tailY);
+      grad.addColorStop(0, 'rgba(160, 210, 255, 0.35)');
+      grad.addColorStop(0.5, 'rgba(120, 185, 255, 0.16)');
+      grad.addColorStop(1, 'rgba(90, 160, 255, 0)');
+      mctx.strokeStyle = grad;
+      mctx.lineWidth = m.width * 4.2;
+      mctx.lineCap = 'round';
+      mctx.beginPath(); mctx.moveTo(m.x, m.y); mctx.lineTo(tailX, tailY); mctx.stroke();
+
+      // mid layer
+      grad = mctx.createLinearGradient(m.x, m.y, tailX, tailY);
+      grad.addColorStop(0, 'rgba(200, 230, 255, 0.75)');
+      grad.addColorStop(0.4, 'rgba(140, 200, 255, 0.4)');
+      grad.addColorStop(1, 'rgba(120, 180, 255, 0)');
+      mctx.strokeStyle = grad;
+      mctx.lineWidth = m.width * 1.9;
+      mctx.beginPath(); mctx.moveTo(m.x, m.y); mctx.lineTo(tailX, tailY); mctx.stroke();
+
+      // bright core
+      grad = mctx.createLinearGradient(m.x, m.y, tailX, tailY);
+      grad.addColorStop(0, 'rgba(235, 248, 255, 0.98)');
+      grad.addColorStop(0.35, 'rgba(180, 220, 255, 0.6)');
+      grad.addColorStop(1, 'rgba(150, 200, 255, 0)');
+      mctx.strokeStyle = grad;
+      mctx.lineWidth = m.width;
+      mctx.beginPath(); mctx.moveTo(m.x, m.y); mctx.lineTo(tailX, tailY); mctx.stroke();
+
+      mctx.beginPath();
+      mctx.arc(m.x, m.y, m.width * 1.3, 0, Math.PI * 2);
+      mctx.fillStyle = 'rgba(235, 248, 255, 0.98)';
+      mctx.shadowColor = 'rgba(160, 215, 255, 1)';
+      mctx.shadowBlur = 20;
+      mctx.fill();
+      mctx.shadowBlur = 0;
+    }
+    requestAnimationFrame(stepMeteors);
+  }
+  requestAnimationFrame(stepMeteors);
+
+  // ---------- global cursor lightning trail ----------
+  const trailCanvas = document.createElement('canvas');
+  trailCanvas.style.position = 'fixed';
+  trailCanvas.style.inset = '0';
+  trailCanvas.style.width = '100vw';
+  trailCanvas.style.height = '100vh';
+  trailCanvas.style.pointerEvents = 'none';
+  trailCanvas.style.zIndex = '9999';
+  document.body.appendChild(trailCanvas);
+  const tctx = trailCanvas.getContext('2d');
+  function resizeTrail() {
+    trailCanvas.width = window.innerWidth;
+    trailCanvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeTrail);
+  resizeTrail();
+
+  let trail = [];
+  document.addEventListener('mousemove', (e) => {
+    trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+    if (trail.length > 40) trail.shift();
+  });
+
+  function animateTrail() {
+    tctx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+    const now = performance.now();
+    trail = trail.filter(p => now - p.t < 320);
+    for (let i = 1; i < trail.length; i++) {
+      const p0 = trail[i - 1], p1 = trail[i];
+      const age = (now - p1.t) / 320;
+      const alpha = Math.max(0, 1 - age);
+      tctx.strokeStyle = `rgba(140, 205, 255, ${alpha * 0.55})`;
+      tctx.lineWidth = 2 * (1 - age) + 0.4;
+      tctx.shadowColor = 'rgba(120, 190, 255, 0.8)';
+      tctx.shadowBlur = 7;
+      tctx.beginPath();
+      tctx.moveTo(p0.x, p0.y);
+      tctx.lineTo(p1.x, p1.y);
+      tctx.stroke();
+    }
+    tctx.shadowBlur = 0;
+    requestAnimationFrame(animateTrail);
+  }
+  animateTrail();
+</script>
+
+</body>
+</html>
